@@ -1,5 +1,6 @@
 import { RawData, WebSocket } from "ws";
 import functions from "./functionHandlers";
+import agent from "./agents";
 
 interface Session {
   twilioConn?: WebSocket;
@@ -137,10 +138,12 @@ function tryConnectModel() {
       session: {
         modalities: ["text", "audio"],
         turn_detection: { type: "server_vad" },
-        voice: "ash",
         input_audio_transcription: { model: "whisper-1" },
         input_audio_format: "g711_ulaw",
         output_audio_format: "g711_ulaw",
+        instructions: agent.instructions,
+        voice: agent.voice,
+        tools: agent.tools.map((t: any) => t.schema),
         ...config,
       },
     });
