@@ -113,6 +113,7 @@ function handleFrontendMessage(data: RawData) {
 
   if (msg.type === "session.update") {
     session.saved_config = msg.session;
+    tryConnectModel();
   }
 }
 

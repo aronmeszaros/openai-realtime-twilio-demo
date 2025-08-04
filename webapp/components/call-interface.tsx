@@ -10,6 +10,12 @@ import { Item } from "@/components/types";
 import handleRealtimeEvent from "@/lib/handle-realtime-event";
 import PhoneNumberChecklist from "@/components/phone-number-checklist";
 
+const DEFAULT_AGENT_CONFIG = {
+  instructions: "You are a helpful assistant in a phone call.",
+  voice: "ash",
+  tools: [] as any[],
+};
+
 const CallInterface = () => {
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState("");
   const [allConfigsReady, setAllConfigsReady] = useState(false);
@@ -24,6 +30,13 @@ const CallInterface = () => {
       newWs.onopen = () => {
         console.log("Connected to logs websocket");
         setCallStatus("connected");
+
+        const updateEvent = {
+          type: "session.update",
+          session: DEFAULT_AGENT_CONFIG,
+        };
+        console.log("Sending initial session.update:", updateEvent);
+        newWs.send(JSON.stringify(updateEvent));
       };
 
       newWs.onmessage = (event) => {
