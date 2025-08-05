@@ -11,6 +11,7 @@ import {
   handleFrontendConnection,
 } from "./sessionManager";
 import functions from "./functionHandlers";
+import agent from "./agents";
 
 dotenv.config();
 
@@ -49,6 +50,13 @@ app.all("/twiml", (req, res) => {
 // New endpoint to list available tools (schemas)
 app.get("/tools", (req, res) => {
   res.json(functions.map((f) => f.schema));
+});
+
+app.get("/session", (req, res) => {
+  res.json({
+    instructions: agent.instructions,
+    voice: agent.voice,
+  });
 });
 
 let currentCall: WebSocket | null = null;

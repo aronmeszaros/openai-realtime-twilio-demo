@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -26,9 +26,9 @@ const SessionConfigurationPanel: React.FC<SessionConfigurationPanelProps> = ({
   onSave,
 }) => {
   const [instructions, setInstructions] = useState(
-    "You are a helpful assistant in a phone call."
+    "You are Sarah, a helpful scheduling assistant."
   );
-  const [voice, setVoice] = useState("ash");
+  const [voice, setVoice] = useState("sage");
   const [tools, setTools] = useState<string[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingSchemaStr, setEditingSchemaStr] = useState("");
@@ -39,13 +39,30 @@ const SessionConfigurationPanel: React.FC<SessionConfigurationPanelProps> = ({
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const initialLoad = useRef(true);
 
   // Custom hook to fetch backend tools every 3 seconds
   const backendTools = useBackendTools("http://localhost:8081/tools", 3000);
 
+  useEffect(() => {
+    fetch("http://localhost:8081/session")
+      .then((res) => res.json())
+      .then((data) => {
+        setInstructions(data.instructions);
+        setVoice(data.voice);
+        initialLoad.current = false;
+      })
+      .catch((err) => {
+        console.error("Error fetching session defaults:", err);
+        initialLoad.current = false;
+      });
+  }, []);
+
   // Track changes to determine if there are unsaved modifications
   useEffect(() => {
-    setHasUnsavedChanges(true);
+    if (!initialLoad.current) {
+      setHasUnsavedChanges(true);
+    }
   }, [instructions, voice, tools]);
 
   // Reset save status after a delay when saved
